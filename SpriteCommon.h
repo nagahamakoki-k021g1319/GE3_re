@@ -33,8 +33,6 @@ public:
 
 	ID3D12PipelineState* GetPipelineState() { return pipelineState; }
 
-	//ID3D12Resource* GetConstBuffMaterial() { return constBuffMaterial; }
-
 	ID3D12DescriptorHeap* GetSrvHeap() { return srvHeap; }
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSrvHandle() { return srvHandle; }
@@ -50,10 +48,6 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff(uint32_t index) { return texBuff[index]; }
 
 	ID3D12Resource* GetTextureBuffer(uint32_t index)const { return texBuff[index].Get(); }
-
-	//ID3D12Resource* GetConstBuffTransform() { return constBuffTransform; }
-
-	//ConstBufferDataTransform* GetConstMapTransform() { return constMapTransform; }
 
 	//SRV用デスクリプタヒープ
 	ID3D12DescriptorHeap* srvHeap = nullptr;
@@ -75,18 +69,10 @@ private:
 	ID3DBlob* errorBlob = nullptr; // エラーオブジェクト
 	HRESULT result;
 
-
 	// ルートシグネチャ
 	ID3D12RootSignature* rootSignature;
-
-
 	// パイプランステートの生成
 	ID3D12PipelineState* pipelineState = nullptr;
-
-
-	//// テクスチャバッファ
-	//ID3D12Resource* texBuff = nullptr;
-
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kMaxSRVCount>texBuff;
 
 	//横方向ピクセル数
@@ -118,6 +104,4 @@ private:
 	static std::string kDefaultTextureDirectoryPath;
 
 	UINT incrementSize;
-
-
 };

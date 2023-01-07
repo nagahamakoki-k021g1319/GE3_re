@@ -46,31 +46,30 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(spriteCommon);
-
 	XMFLOAT2 position = sprite->GetPosition();
-	position.x = 500.0f;
-	position.y = 200.0f;
+	position.x = 400.0f;
+	position.y = 0.0f;
 	sprite->SetPozition(position);
 	XMFLOAT4 color = { 1,1,1,1 };
 	sprite->SetColor(color);
 	sprite->SetSize(XMFLOAT2{ 500.0f,281.0f });
+	
 
-	Sprite* sprite2 = new Sprite();
-	sprite2->Initialize(spriteCommon);
-
-	XMFLOAT2 position2 = sprite2->GetPosition();
-	position.x = 500.0f;
-	position.y = 500.0f;
-	sprite2->SetPozition(position2);
-	XMFLOAT4 color2 = { 1,1,1,1 };
-	sprite2->SetColor(color2);
-	sprite2->SetSize(XMFLOAT2{ 200.0f,112.0f });
+	Sprite* sprite1 = new Sprite();
+	sprite1->Initialize(spriteCommon);
+	XMFLOAT2 position1 = sprite1->GetPosition();
+	position1.x = 30.0f;
+	position1.y = 30.0f;
+	sprite1->SetPozition(position1);
+	XMFLOAT4 color1 = { 1,1,1,1 };
+	sprite1->SetColor(color1);
+	sprite1->SetSize(XMFLOAT2{ 200.0f,112.0f });
 	
 	spriteCommon->LoadTexture(0, "eri.png");
-	spriteCommon->LoadTexture(1, "feri.png");
-
 	sprite->SetTextureIndex(0);
-	sprite2->SetTextureIndex(1);
+
+	spriteCommon->LoadTexture(1, "feri.png");
+	sprite1->SetTextureIndex(1);
 	
 
 	/////////////////////////////////////////////////////////
@@ -120,7 +119,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PreDraw();
 
 		sprite->Draw();
-		sprite2->Draw();
+		sprite1->Draw();
 
 		dxCommon->PostDraw();
 

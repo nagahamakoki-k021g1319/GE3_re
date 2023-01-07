@@ -2,18 +2,13 @@
 
 void Sprite::Initialize(SpriteCommon* spritecommon_)
 {
-
 	spritecomon = spritecommon_;
-
 
 	// 頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; // GPUへの転送用
 
-
-
 	// 頂点バッファの生成
-
 	result = spritecomon->GetDxCommon()->GetDevice()->CreateCommittedResource(
 		&heapProp, // ヒープ設定
 		D3D12_HEAP_FLAG_NONE,
@@ -22,8 +17,8 @@ void Sprite::Initialize(SpriteCommon* spritecommon_)
 		nullptr,
 		IID_PPV_ARGS(&vertBuff));
 	assert(SUCCEEDED(result));
+	
 	// GPU上のバッファに対応した仮想メモリ(メインメモリ上)を取得
-
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
 	// 全頂点に対して
@@ -104,15 +99,11 @@ void Sprite::Initialize(SpriteCommon* spritecommon_)
 	assert(SUCCEEDED(result));
 
 	// 定数バッファのマッピング
-
 	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial); // マッピング
 	assert(SUCCEEDED(result));
 
 	// 値を書き込むと自動的に転送される
 	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);              // RGBAで半透明の赤
-
-
-
 }
 
 void Sprite::Draw()
@@ -122,7 +113,6 @@ void Sprite::Draw()
 	matTrans = XMMatrixTranslation(position.x, position.y, 0.0f);//(-50,0,0)平行移動
 
 	matWorld = XMMatrixIdentity();//変形をリセット
-	//matWorld *= matScale;//ワールド行列にスケーリングを反映
 	matWorld *= matRot;//ワールド行列にスケーリングを反映
 	matWorld *= matTrans;
 
@@ -143,12 +133,8 @@ void Sprite::Draw()
 	spritecomon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 	// 定数バッファビュー(CBV)の設定コマンド
 	spritecomon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
-
-
-
 	// 定数バッファビュー(CBV)の設定コマンド
 	spritecomon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
-
 	// 描画コマンド
 	spritecomon->GetDxCommon()->GetCommandList()->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
 }
@@ -195,25 +181,12 @@ void Sprite::Update()
 		vertices[RT].uv = { tex_right,tex_top };
 
 	}
-	////頂点データ
-	//vertices[LB].pos = { 0.0f,size_.y,0.0f };
-	//vertices[LT].pos = { 0.0f,0.0f,0.0f };
-	//vertices[RB].pos = { size_.x,size_.y,0.0f };
-	//vertices[RT].pos = { size_.x,0.0f,0.0f };
-
-
-	/*std::copy(std::begin(vertices), std::end(vertices), vertMap);*/
-
-	/*matScale = XMMatrixScaling(scale.x, scale.y, scale.z);*/
-
-
-
+	
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	if (SUCCEEDED(result)) {
 		memcpy(vertMap, vertices, sizeof(vertices));
 		vertBuff->Unmap(0, nullptr);
 	}
-
 }
 
 void Sprite::SetPozition(const XMFLOAT2& position_)
