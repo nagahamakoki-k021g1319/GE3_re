@@ -70,8 +70,6 @@ public:
 
 	void SetSize(XMFLOAT2 size);
 
-	/*void SetAnchorPoint(const XMFLOAT2& anchorpoint_) { anchorpoint = anchorpoint_; };*/
-
 	XMFLOAT2 GetAnchorPonit() { return anchorpoint; }
 
 	/// 上下反転の設定
@@ -91,11 +89,7 @@ private:
 		{{+0.4f, -0.7f, 0.0f}, {1.0f, 1.0f}}, // 右下
 		{{+0.4f, +0.7f, 0.0f}, {1.0f, 0.0f}}, // 右上
 	};
-	//XMFLOAT3 vertices[] = {
-	//{ -0.5f, -0.5f, 0.0f }, // 左下
-	//{ -0.5f, +0.5f, 0.0f }, // 左上
-	//{ +0.5f, -0.5f, 0.0f }, // 右下
-	//};
+
 	// 頂点バッファビューの作成
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 
@@ -105,7 +99,6 @@ private:
 	XMMATRIX  matTrans;//平行移動行列
 
 	//座標
-
 	XMFLOAT3 scale{ 0.5f, 0.5f, 1.0f };
 
 	XMFLOAT2 size_ = { 100.0f,100.0f };
