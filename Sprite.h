@@ -70,8 +70,6 @@ public:
 
 	void SetSize(XMFLOAT2 size);
 
-	XMFLOAT2 GetAnchorPonit() { return anchorpoint; }
-
 	/// è„â∫îΩì]ÇÃê›íË
 	void SetIsFlipY(bool isFlipY);
 

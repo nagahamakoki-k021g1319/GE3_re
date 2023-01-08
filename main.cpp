@@ -4,6 +4,9 @@
 #include "FPS.h"
 #include "SpriteCommon.h"
 #include "Sprite.h"
+#include "Object3d.h"
+#include "Model.h"
+
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -36,51 +39,59 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
+	
+
 #pragma endregion
 
 #pragma region DirectX初期化処理
+	// 3Dオブジェクト静的初期化
+	Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
 
-	////////////////////////////////////////////////////
-	//-------------DirectX12初期化処理ここから-----------//
-	//////////////////////////////////////////////////
+
+#pragma endregion
+
+#pragma region 描画初期化処理
 
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(spriteCommon);
-
 	XMFLOAT2 position = sprite->GetPosition();
-	position.x = 500.0f;
-	position.y = 200.0f;
+	position.x = 400.0f;
+	position.y = 0.0f;
 	sprite->SetPozition(position);
 	XMFLOAT4 color = { 1,1,1,1 };
 	sprite->SetColor(color);
 	sprite->SetSize(XMFLOAT2{ 500.0f,281.0f });
 
-	Sprite* sprite2 = new Sprite();
-	sprite2->Initialize(spriteCommon);
 
-	XMFLOAT2 position2 = sprite2->GetPosition();
-	position.x = 500.0f;
-	position.y = 500.0f;
-	sprite2->SetPozition(position2);
-	XMFLOAT4 color2 = { 1,1,1,1 };
-	sprite2->SetColor(color2);
-	sprite2->SetSize(XMFLOAT2{ 200.0f,112.0f });
-	
+	Sprite* sprite1 = new Sprite();
+	sprite1->Initialize(spriteCommon);
+	XMFLOAT2 position1 = sprite1->GetPosition();
+	position1.x = 30.0f;
+	position1.y = 30.0f;
+	sprite1->SetPozition(position1);
+	XMFLOAT4 color1 = { 1,1,1,1 };
+	sprite1->SetColor(color1);
+	sprite1->SetSize(XMFLOAT2{ 200.0f,112.0f });
+
 	spriteCommon->LoadTexture(0, "eri.png");
-	spriteCommon->LoadTexture(1, "feri.png");
-
 	sprite->SetTextureIndex(0);
-	sprite2->SetTextureIndex(1);
-	
 
-	/////////////////////////////////////////////////////////
-	//--------------DirectX12初期化処理　ここまで-------------//
-	///////////////////////////////////////////////////////
-#pragma endregion
+	spriteCommon->LoadTexture(1, "feri.png");
+	sprite1->SetTextureIndex(1);
 
-#pragma region 描画初期化処理
 
-	
+	// OBJからモデルデータを読み込み
+	Model* model = Model::LoadFromOBJ("as");
+	Model* model2 = Model::LoadFromOBJ("as2");
+	//3Dオブジェクト生成
+	Object3d* object3d = Object3d::Create();
+	Object3d* object3d_2 = Object3d::Create();
+	// オブジェクトにモデルを紐づける
+	object3d->SetModel(model);
+	object3d_2->SetModel(model2);
+	//3Dオブジェクトの位置を指定
+	object3d_2->SetPosition({ -5,5,0 });
+
 	//FPS変えたいとき
 	fps->SetFrameRate(60);
 
@@ -108,6 +119,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//入力の更新
 		input->Update();
 
+		object3d->Update();
+		object3d_2->Update();
+
 		//////////////////////////////////////////////
 		//-------DireceX毎フレーム処理　ここまで--------//
 		////////////////////////////////////////////
@@ -118,9 +132,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//4.描画コマンドここから
 		dxCommon->PreDraw();
+		//3Dオブジェクト描画前処理
+		Object3d::PreDraw(dxCommon->GetCommandList());
+
+		//3Dオブジェクトの描画
+		object3d->Draw();
+		object3d_2->Draw();
+
+
+		/// <summary>
+		/// ここに3Dオブジェクトの描画処理を追加できる
+		/// <summary>
+
+		//3Dオブジェクト描画後処理
+		Object3d::PostDraw();
 
 		sprite->Draw();
-		sprite2->Draw();
+		sprite1->Draw();
+
+
+
 
 		dxCommon->PostDraw();
 
@@ -134,6 +165,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #pragma endregion
 	}
 #pragma region  WindowsAPI後始末
+
+	//3Dオブジェクト解放
+	delete object3d;
+	delete object3d_2;
+	
+	//3Dモデル解放
+	delete model;
+	delete model2;
+
 
 	//WindowsAPIの終了処理
 	winApp->Finalize();
