@@ -154,6 +154,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="DirectXCommon.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -206,6 +207,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="DirectXCommon.h" />
     <ClInclude Include="FPS.h" />
     <ClInclude Include="Input.h" />
