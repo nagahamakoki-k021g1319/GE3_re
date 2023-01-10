@@ -6,7 +6,7 @@
 #include "Sprite.h"
 #include "Object3d.h"
 #include "Model.h"
-
+#include "Audio.h"
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -39,7 +39,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
-	
+	Audio* audio = nullptr;
+	audio = new Audio();
+	audio->Initialize();
 
 #pragma endregion
 
@@ -92,6 +94,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//3Dオブジェクトの位置を指定
 	object3d_2->SetPosition({ -5,5,0 });
 
+	////////////////////////////
+	//------音声読み込み--------//
+	///////////////////////////
+
+	audio->LoadWave("cr.wav");
+	audio->LoadWave("tit.wav");
+	int CheckFlag = 0;
+
+
 	//FPS変えたいとき
 	fps->SetFrameRate(60);
 
@@ -121,6 +132,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		object3d->Update();
 		object3d_2->Update();
+
+		if (CheckFlag == 0) {
+			//音声再生
+			audio->PlayWave("tit.wav");
+			CheckFlag = 1;
+		}
+
+		if (input->TriggerKey(DIK_SPACE)) {
+			//音声再生
+			audio->PlayWave("cr.wav");
+		}
 
 		//////////////////////////////////////////////
 		//-------DireceX毎フレーム処理　ここまで--------//
@@ -173,6 +195,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//3Dモデル解放
 	delete model;
 	delete model2;
+
+	//オーディオ解放
+	audio->Finalize();
+	delete audio;
+
 
 
 	//WindowsAPIの終了処理
