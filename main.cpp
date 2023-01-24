@@ -7,6 +7,9 @@
 #include "Object3d.h"
 #include "Model.h"
 #include "Audio.h"
+#include "ImGuiManager.h"
+#include <imgui.h>
+
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -38,6 +41,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//スプライト共通部分の初期化
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
+
+	ImGuiManager* ImGuiMan = nullptr;
+	ImGuiMan = new ImGuiManager();
+	ImGuiMan->Initialize(winApp, dxCommon);
 
 	Audio* audio = nullptr;
 	audio = new Audio();
@@ -94,6 +101,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//3Dオブジェクトの位置を指定
 	object3d_2->SetPosition({ -5,5,0 });
 
+	
+
 	////////////////////////////
 	//------音声読み込み--------//
 	///////////////////////////
@@ -102,6 +111,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	audio->LoadWave("tit.wav");
 	int CheckFlag = 0;
 
+
+	float f[2] = {100,100};
 
 	//FPS変えたいとき
 	fps->SetFrameRate(60);
@@ -144,6 +155,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			audio->PlayWave("cr.wav");
 		}
 
+		//デバッグテキストはここにはさむ
+		ImGuiMan->Bigin();
+		
+		sprite1->SetPozition({ f[0],f[1] });
+		ImGui::SetWindowSize({ 500,100 });
+		ImGui::SliderFloat2("ferrisPos", &f[0], 0.0f, 1280.0f, "%.3f");
+
+		//デモウィンドウの表示ON
+		ImGui::ShowDemoWindow();
+
+		ImGuiMan->End();
+
+
 		//////////////////////////////////////////////
 		//-------DireceX毎フレーム処理　ここまで--------//
 		////////////////////////////////////////////
@@ -173,7 +197,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		sprite1->Draw();
 
 
-
+		ImGuiMan->Draw();
 
 		dxCommon->PostDraw();
 
@@ -187,6 +211,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #pragma endregion
 	}
 #pragma region  WindowsAPI後始末
+	ImGuiMan->Finalize();
+	//ImGuiの開放
+	delete ImGuiMan;
 
 	//3Dオブジェクト解放
 	delete object3d;
