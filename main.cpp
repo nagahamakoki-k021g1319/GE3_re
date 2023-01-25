@@ -42,9 +42,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
 
-	ImGuiManager* ImGuiMan = nullptr;
-	ImGuiMan = new ImGuiManager();
-	ImGuiMan->Initialize(winApp, dxCommon);
+	ImGuiManager* imGui = nullptr;
+	imGui = new ImGuiManager();
+	imGui->Initialize(winApp, dxCommon);
 
 	Audio* audio = nullptr;
 	audio = new Audio();
@@ -124,8 +124,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	while (true) {
 #pragma region ウィンドウメッセージ処理
 	
-		//アプリケーションが終わる時にmessageがWM_QUITになる
-		if (msg.message == WM_QUIT) {
+		//window
+		if (winApp->ProcessMessage()) {
+			//抜ける
 			break;
 		}
 		
@@ -156,7 +157,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 
 		//デバッグテキストはここにはさむ
-		ImGuiMan->Bigin();
+		imGui->Bigin();
 		
 		sprite1->SetPozition({ f[0],f[1] });
 		ImGui::SetWindowSize({ 500,100 });
@@ -165,7 +166,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//デモウィンドウの表示ON
 		ImGui::ShowDemoWindow();
 
-		ImGuiMan->End();
+		imGui->End();
 
 
 		//////////////////////////////////////////////
@@ -196,8 +197,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		sprite->Draw();
 		sprite1->Draw();
 
-
-		ImGuiMan->Draw();
+	
+		imGui->Draw();
 
 		dxCommon->PostDraw();
 
@@ -211,9 +212,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #pragma endregion
 	}
 #pragma region  WindowsAPI後始末
-	ImGuiMan->Finalize();
+	imGui->Finalize();
 	//ImGuiの開放
-	delete ImGuiMan;
+	delete imGui;
 
 	//3Dオブジェクト解放
 	delete object3d;
