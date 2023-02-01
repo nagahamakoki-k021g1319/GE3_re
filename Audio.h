@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 #include <fstream>
+#include <set>
+
 
 /// <summary>
 /// オーディオ
@@ -41,6 +43,12 @@ public:
 		unsigned int bufferSize;
 	};
 
+	// 再生データ
+	struct Voice {
+		uint32_t handle = 0u;
+		IXAudio2SourceVoice* sourceVoice = nullptr;
+	};
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -64,14 +72,23 @@ public:
 	/// <summary>
 	/// //音声再生
 	/// </summary>
-	void PlayWave(const std::string& filename);
+	IXAudio2SourceVoice* PlayWave(const std::string& filename);
+
+	/// <summary>
+	/// 音声停止
+	/// </summary>
+	/// <param name="voiceHandle">再生ハンドル</param>
+	void StopWave(IXAudio2SourceVoice* pSourceVoice);
 
 private:
 	//サウンド再生
 	ComPtr<IXAudio2> xAudio2_;
+	// 再生中データコンテナ
+	std::set<Voice*> voices_;
 	//サウンドデータの連想配列
 	std::map<std::string, SoundData> soundDates_;
 	//サウンド格納ディレクトリ
 	std::string directoryPath_;
+
 };
 

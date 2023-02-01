@@ -133,7 +133,7 @@ void Audio::Unload(SoundData* soundData)
 	soundData->wfex = {};
 }
 
-void Audio::PlayWave(const std::string& filename)
+IXAudio2SourceVoice* Audio::PlayWave(const std::string& filename)
 {
 	HRESULT result;
 
@@ -156,5 +156,18 @@ void Audio::PlayWave(const std::string& filename)
 	//波形データの再生
 	result = pSourceVoice->SubmitSourceBuffer(&buf);
 	result = pSourceVoice->Start();
+
+	return pSourceVoice;
+
+}
+
+void Audio::StopWave(IXAudio2SourceVoice* pSourceVoice)
+{
+	assert(pSourceVoice);
+	HRESULT result;
+
+	//波形データの再生
+	result = pSourceVoice->Stop();
+
 }
 
