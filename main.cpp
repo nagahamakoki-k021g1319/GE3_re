@@ -7,6 +7,9 @@
 #include "Object3d.h"
 #include "Model.h"
 #include "Audio.h"
+#include "ImGuiManager.h"
+#include <imgui.h>
+
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -38,6 +41,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//スプライト共通部分の初期化
 	spriteCommon = new SpriteCommon;
 	spriteCommon->Initialize(dxCommon);
+
+	ImGuiManager* imGui = nullptr;
+	imGui = new ImGuiManager();
+	imGui->Initialize(winApp, dxCommon);
 
 	Audio* audio = nullptr;
 	audio = new Audio();
@@ -75,11 +82,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	sprite1->SetColor(color1);
 	sprite1->SetSize(XMFLOAT2{ 200.0f,112.0f });
 
+	Sprite* sprite2 = new Sprite();
+	sprite2->Initialize(spriteCommon);
+	XMFLOAT2 position2 = sprite2->GetPosition();
+	sprite2->SetPozition(position2);
+	sprite2->SetSize(XMFLOAT2{ 1280.0f,720.0f });
+
 	spriteCommon->LoadTexture(0, "eri.png");
 	sprite->SetTextureIndex(0);
 
 	spriteCommon->LoadTexture(1, "feri.png");
 	sprite1->SetTextureIndex(1);
+
+	spriteCommon->LoadTexture(2, "tt.png");
+	sprite2->SetTextureIndex(2);
 
 
 	// OBJからモデルデータを読み込み
@@ -92,7 +108,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	object3d->SetModel(model);
 	object3d_2->SetModel(model2);
 	//3Dオブジェクトの位置を指定
-	object3d_2->SetPosition({ -5,5,0 });
+	object3d_2->SetPosition({ -5,-10,0 });
 
 	////////////////////////////
 	//------音声読み込み--------//
@@ -102,19 +118,33 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	audio->LoadWave("tit.wav");
 	int CheckFlag = 0;
 
+	int isCollision = 0;
+
+	IXAudio2SourceVoice* pSourceVoice[10] = { 0 };
+
+	float f[2] = {100,100};
+
+	//シーン切り替え
+	enum class SceneNo {
+		Title, //タイトル
+		Game,  //射撃
+	};
+
+	SceneNo sceneNo_ = SceneNo::Title;
+
 
 	//FPS変えたいとき
 	fps->SetFrameRate(60);
 
 #pragma endregion
 
-	float angle = 0.0f; //カメラの回転
 	//ゲームループ
 	while (true) {
 #pragma region ウィンドウメッセージ処理
 	
-		//アプリケーションが終わる時にmessageがWM_QUITになる
-		if (msg.message == WM_QUIT) {
+		//window
+		if (winApp->ProcessMessage()) {
+			//抜ける
 			break;
 		}
 		
@@ -130,18 +160,85 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//入力の更新
 		input->Update();
 
-		object3d->Update();
-		object3d_2->Update();
-
-		if (CheckFlag == 0) {
-			//音声再生
-			audio->PlayWave("tit.wav");
-			CheckFlag = 1;
+		if (sceneNo_ == SceneNo::Title) {
+			if (input->TriggerKey(DIK_SPACE)) {
+				sceneNo_ = SceneNo::Game;
+				audio->PlayWave("cr.wav");
+			}
 		}
 
-		if (input->TriggerKey(DIK_SPACE)) {
-			//音声再生
-			audio->PlayWave("cr.wav");
+
+		if (sceneNo_ == SceneNo::Game) {
+			object3d->Update();
+			// オブジェクト移動
+			if (input->PushKey(DIK_UP) || input->PushKey(DIK_W) ||
+				input->PushKey(DIK_DOWN) || input->PushKey(DIK_S) ||
+				input->PushKey(DIK_RIGHT) || input->PushKey(DIK_D) ||
+				input->PushKey(DIK_LEFT) || input->PushKey(DIK_A))
+			{
+				// 現在の座標を取得
+				XMFLOAT3 position = object3d->GetPosition();
+
+				// 移動後の座標を計算
+				if (input->PushKey(DIK_UP) || input->PushKey(DIK_W)) { position.y += 0.3f; }
+				else if (input->PushKey(DIK_DOWN) || input->PushKey(DIK_S)) { position.y -= 0.3f; }
+				if (input->PushKey(DIK_RIGHT) || input->PushKey(DIK_D)) { position.x += 0.3f; }
+				else if (input->PushKey(DIK_LEFT) || input->PushKey(DIK_A)) { position.x -= 0.3f; }
+
+				if (input->PushKey(DIK_UP) && input->PushKey(DIK_SPACE) || input->PushKey(DIK_W) && input->PushKey(DIK_SPACE)) { position.y += 0.6f; }
+				else if (input->PushKey(DIK_DOWN) && input->PushKey(DIK_SPACE) || input->PushKey(DIK_S) && input->PushKey(DIK_SPACE)) { position.y -= 0.6f; }
+				if (input->PushKey(DIK_RIGHT) && input->PushKey(DIK_SPACE) || input->PushKey(DIK_D) && input->PushKey(DIK_SPACE)) { position.x += 0.6f; }
+				else if (input->PushKey(DIK_LEFT) && input->PushKey(DIK_SPACE) || input->PushKey(DIK_A) && input->PushKey(DIK_SPACE)) { position.x -= 0.6f; }
+				// 座標の変更を反映
+				object3d->SetPosition(position);
+			}
+
+
+
+			object3d_2->Update();
+
+			//当たり判定
+			XMFLOAT3 a = object3d_2->GetPosition();
+			XMFLOAT3 b = object3d->GetPosition();
+			float xyz = std::pow(a.x - b.x, 2.0f) + std::pow(a.y - b.y, 2.0f) + std::pow(a.z - b.z, 2.0f);
+			float lenR = std::pow(1.0f + 1.0f, 2.0f);
+			if (xyz <= lenR) {
+				isCollision = 1;
+			}
+
+
+
+			if (CheckFlag == 0) {
+				//音声再生
+				pSourceVoice[0] = audio->PlayWave("tit.wav");
+				CheckFlag = 1;
+			}
+			if (input->TriggerKey(DIK_E)) {
+				pSourceVoice[0]->Stop();
+			}
+			if (input->TriggerKey(DIK_Z)) {
+				pSourceVoice[0]->SetVolume(0.1f);
+			}if (input->TriggerKey(DIK_X)) {
+				pSourceVoice[0]->SetVolume(1.0f);
+			}
+
+			if (input->TriggerKey(DIK_SPACE)) {
+				//音声再生
+				audio->PlayWave("cr.wav");
+			}
+
+			//デバッグテキストはここにはさむ
+			imGui->Bigin();
+
+			sprite1->SetPozition({ f[0],f[1] });
+			ImGui::SetWindowSize({ 500,100 });
+			ImGui::SliderFloat2("ferrisPos", &f[0], 0.0f, 1280.0f, "%.3f");
+
+			//デモウィンドウの表示ON
+			ImGui::ShowDemoWindow();
+
+			imGui->End();
+
 		}
 
 		//////////////////////////////////////////////
@@ -157,10 +254,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//3Dオブジェクト描画前処理
 		Object3d::PreDraw(dxCommon->GetCommandList());
 
-		//3Dオブジェクトの描画
-		object3d->Draw();
-		object3d_2->Draw();
-
+		if (sceneNo_ == SceneNo::Game) {
+			//3Dオブジェクトの描画
+			object3d->Draw();
+			if (isCollision == 0) {
+				object3d_2->Draw();
+			}else{}
+		}
 
 		/// <summary>
 		/// ここに3Dオブジェクトの描画処理を追加できる
@@ -169,11 +269,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//3Dオブジェクト描画後処理
 		Object3d::PostDraw();
 
-		sprite->Draw();
-		sprite1->Draw();
+		if (sceneNo_ == SceneNo::Title) {
+			sprite2->Draw();
+		}
+
+		if (sceneNo_ == SceneNo::Game) {
+			sprite->Draw();
+			sprite1->Draw();
 
 
-
+			imGui->Draw();
+		}
 
 		dxCommon->PostDraw();
 
@@ -187,6 +293,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #pragma endregion
 	}
 #pragma region  WindowsAPI後始末
+	imGui->Finalize();
+	//ImGuiの開放
+	delete imGui;
 
 	//3Dオブジェクト解放
 	delete object3d;
