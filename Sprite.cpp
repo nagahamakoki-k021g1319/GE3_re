@@ -1,8 +1,16 @@
 #include"Sprite.h"
 
-void Sprite::Initialize(SpriteCommon* spritecommon_)
+void Sprite::Initialize(SpriteCommon* spritecommon_, uint32_t textureIndex)
 {
 	spritecomon = spritecommon_;
+	//テクスチャサイズをイメージに合わせる
+	if (textureIndex != UINT32_MAX) {
+		textureIndex_ = textureIndex;
+		AdjustTextureSize();
+		//テクスチャサイズをスプライトのサイズに適用
+		size_ = textureSize;
+	}
+
 
 	// 頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
@@ -34,6 +42,8 @@ void Sprite::Initialize(SpriteCommon* spritecommon_)
 	vbView.SizeInBytes = spritecomon->GetSizeVB();
 	// 頂点1つ分のデータサイズ
 	vbView.StrideInBytes = sizeof(vertices[0]);
+
+	
 
 	Update();
 
@@ -219,6 +229,19 @@ void Sprite::SetIsFlipX(bool isFlipX)
 	this->isFlipX = isFlipX;
 
 	Update();
+}
+
+void Sprite::AdjustTextureSize()
+{
+	ID3D12Resource* textureBuffer = spritecomon->GetTextureBuffer(textureIndex_);
+	assert(textureBuffer);
+
+	//テクスチャ情報取得
+	D3D12_RESOURCE_DESC resDesc = textureBuffer->GetDesc();
+
+	textureSize.x = static_cast<float>(resDesc.Width);
+	textureSize.y = static_cast<float>(resDesc.Height);
+
 }
 
 

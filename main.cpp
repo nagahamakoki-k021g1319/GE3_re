@@ -64,15 +64,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(spriteCommon);
 	XMFLOAT2 position = sprite->GetPosition();
-	position.x = 400.0f;
-	position.y = 0.0f;
+	/*position.x = 400.0f;
+	position.y = 0.0f;*/
 	sprite->SetPozition(position);
 	XMFLOAT4 color = { 1,1,1,1 };
 	sprite->SetColor(color);
 	sprite->SetSize(XMFLOAT2{ 500.0f,281.0f });
 
-
-	Sprite* sprite1 = new Sprite();
+	/*Sprite* sprite1 = new Sprite();
 	sprite1->Initialize(spriteCommon);
 	XMFLOAT2 position1 = sprite1->GetPosition();
 	position1.x = 30.0f;
@@ -80,7 +79,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	sprite1->SetPozition(position1);
 	XMFLOAT4 color1 = { 1,1,1,1 };
 	sprite1->SetColor(color1);
-	sprite1->SetSize(XMFLOAT2{ 200.0f,112.0f });
+	sprite1->SetSize(XMFLOAT2{ 200.0f,112.0f });*/
 
 	Sprite* sprite2 = new Sprite();
 	sprite2->Initialize(spriteCommon);
@@ -88,11 +87,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	sprite2->SetPozition(position2);
 	sprite2->SetSize(XMFLOAT2{ 1280.0f,720.0f });
 
+	
+
 	spriteCommon->LoadTexture(0, "eri.png");
 	sprite->SetTextureIndex(0);
 
-	spriteCommon->LoadTexture(1, "feri.png");
-	sprite1->SetTextureIndex(1);
+	
+
+
+	/*spriteCommon->LoadTexture(1, "feri.png");
+	sprite1->SetTextureIndex(1);*/
+
+	//sprite->SetPozition({ 0,0 });
 
 	spriteCommon->LoadTexture(2, "tt.png");
 	sprite2->SetTextureIndex(2);
@@ -205,8 +211,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			if (xyz <= lenR) {
 				isCollision = 1;
 			}
-
-
+			position.x += 1.0f;
+			sprite->SetPozition(position);
+	
 
 			if (CheckFlag == 0) {
 				//音声再生
@@ -230,7 +237,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			//デバッグテキストはここにはさむ
 			imGui->Bigin();
 
-			sprite1->SetPozition({ f[0],f[1] });
+			/*sprite1->SetPozition({ f[0],f[1] });*/
 			ImGui::SetWindowSize({ 500,100 });
 			ImGui::SliderFloat2("ferrisPos", &f[0], 0.0f, 1280.0f, "%.3f");
 
@@ -274,8 +281,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 
 		if (sceneNo_ == SceneNo::Game) {
+			sprite->Update();
 			sprite->Draw();
-			sprite1->Draw();
+			/*sprite1->Draw();*/
 
 
 			imGui->Draw();
